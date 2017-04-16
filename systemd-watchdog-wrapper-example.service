@@ -1,0 +1,9 @@
+[Unit]
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/path/to/systemd-watchdog-wrapper /usr/bin/curl http://127.0.0.1:8000 --- /usr/bin/python -m SimpleHTTPServer
+WatchdogSec=1
