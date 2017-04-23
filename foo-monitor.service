@@ -1,0 +1,9 @@
+[Unit]
+BindsTo=foo.service
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/systemd-watchdog-wrapper /usr/bin/curl http://localhost:8000
+WatchdogSec=5
+Restart=always
+
