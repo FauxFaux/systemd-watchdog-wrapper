@@ -46,7 +46,7 @@ main(int argc, char *argv[])
 			cmd[i] = argv[location + i + 1];
 		cmd[argc - location - 1] = NULL;
 
-		pid_t cpid = fork();
+		pid_t cpid = vfork();
 		if (cpid == -1)
 		{
 			perror("fork");
@@ -74,7 +74,7 @@ main(int argc, char *argv[])
 		int wstatus;
 		pid_t wpid, w;
 
-		wpid = fork();
+		wpid = vfork();
 		if (wpid == -1)
 		{
 			perror("fork");
@@ -82,7 +82,7 @@ main(int argc, char *argv[])
 		}
 		else if (wpid == 0)
 		{
-			if (execve(watchdog_cmd[0], watchdog_cmd, NULL) == -1)
+			if (execvp(watchdog_cmd[0], watchdog_cmd) == -1)
 			{
 				perror("execve");
 				exit(EXIT_FAILURE);
