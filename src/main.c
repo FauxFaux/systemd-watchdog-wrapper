@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 500
+
 #include <time.h>
 #include <fcntl.h>
 #include <stdio.h>
