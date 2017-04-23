@@ -26,23 +26,11 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (argc <= location + 1)
-	{
-		fprintf(stderr, "Must specify a command to wrap\n");
-		exit(EXIT_FAILURE);
-	}
-
 	// Parse command
 	char **watchdog_cmd = malloc(location * sizeof(char *));
 	for (int i = 0; i < location - 1; i++)
 		watchdog_cmd[i] = argv[i + 1];
 	watchdog_cmd[location - 1] = NULL;
-
-	// Parse wrapped command
-	char **cmd = malloc((argc - location) * sizeof(char *));
-	for (int i = 0; i < argc - location; i++)
-		cmd[i] = argv[location + i + 1];
-	cmd[argc - location - 1] = NULL;
 
 	char *env = getenv("WATCHDOG_USEC");
 	if (env == NULL) {
@@ -51,21 +39,29 @@ main(int argc, char *argv[])
 	}
 	interval = atoi(env) / 2;
 
-	pid_t cpid = fork();
-	if (cpid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-	else if (cpid == 0)
-	{
-		if (execve(cmd[0], cmd, NULL) == -1)
+	if (location < argc) {
+		// Parse wrapped command
+		char **cmd = malloc((argc - location) * sizeof(char *));
+		for (int i = 0; i < argc - location; i++)
+			cmd[i] = argv[location + i + 1];
+		cmd[argc - location - 1] = NULL;
+
+		pid_t cpid = fork();
+		if (cpid == -1)
 		{
-			perror("execve");
+			perror("fork");
 			exit(EXIT_FAILURE);
 		}
+		else if (cpid == 0)
+		{
+			if (execve(cmd[0], cmd, NULL) == -1)
+			{
+				perror("execve");
+				exit(EXIT_FAILURE);
+			}
 
-		exit(EXIT_SUCCESS);
+			exit(EXIT_SUCCESS);
+		}
 	}
 
 	sd_notify(0, "READY=1");
